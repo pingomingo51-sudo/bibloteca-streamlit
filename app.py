@@ -16,6 +16,7 @@ st.set_page_config(
 def cargar_datos():
     df = pd.read_csv("biblioteca.csv", sep=';')
     df.columns = df.columns.str.strip().str.lower()
+    # Aseguramos que 'isbn' y 'fecha_prestamo' existan
     if 'isbn' not in df.columns:
         df['isbn'] = ''
     if 'fecha_prestamo' not in df.columns:
@@ -61,42 +62,40 @@ with tab_inicio:
                  use_container_width=True)
 
 # ==================================================
-# 📚 LIBROS (ISBN visible) - selectbox único
+# 📚 LIBROS (ISBN visible)
 # ==================================================
 with tab_libros:
     st.title("📚 Libros")
+
     libros_df = df[df["tipo"].str.lower() == "libro"]
+
     col1, col2, col3, col4, col5 = st.columns(5)
 
-    # --- Título ---
     with col1:
         titulo = st.selectbox(
             "Título",
-            options=[""] + sorted(libros_df["titulo"].dropna().unique().tolist())
+            options=[""] + sorted(libros_df["titulo"].dropna().unique().tolist()),
+            format_func=lambda x: x
         )
 
-    # --- Autor ---
     with col2:
         autor = st.selectbox(
             "Autor",
             options=[""] + sorted(libros_df["autor"].dropna().unique().tolist())
         )
 
-    # --- Género ---
     with col3:
         genero = st.selectbox(
             "Género",
             options=[""] + sorted(libros_df["genero"].dropna().unique().tolist())
         )
 
-    # --- Saga ---
     with col4:
         saga = st.selectbox(
             "Saga",
             options=[""] + sorted(libros_df["saga"].dropna().unique().tolist())
         )
 
-    # --- ISBN ---
     with col5:
         isbn = st.selectbox(
             "ISBN",
@@ -106,48 +105,53 @@ with tab_libros:
     # Aplicar filtros
     if titulo:
         libros_df = libros_df[libros_df["titulo"] == titulo]
+
     if autor:
         libros_df = libros_df[libros_df["autor"] == autor]
+
     if genero:
         libros_df = libros_df[libros_df["genero"] == genero]
+
     if saga:
         libros_df = libros_df[libros_df["saga"] == saga]
+
     if isbn:
         libros_df = libros_df[libros_df["isbn"].astype(str) == isbn]
 
-    st.dataframe(libros_df[["id"] + [c for c in libros_df.columns if c != "id"]],
-                 use_container_width=True)
+    # Mostrar libros (ISBN incluido)
+    st.dataframe(
+        libros_df[["id"] + [c for c in libros_df.columns if c != "id"]],
+        use_container_width=True
+    )
 
 # ==================================================
-# 🎬 PELÍCULAS (ISBN oculto) - selectbox único
+# 🎬 PELÍCULAS (ISBN oculto)
 # ==================================================
 with tab_peliculas:
     st.title("🎬 Películas")
+
     pelis_df = df[df["tipo"].str.lower() == "película"]
+
     col1, col2, col3, col4 = st.columns(4)
 
-    # --- Título ---
     with col1:
         titulo_peli = st.selectbox(
             "Película",
             options=[""] + sorted(pelis_df["titulo"].dropna().unique().tolist())
         )
 
-    # --- Director ---
     with col2:
         director = st.selectbox(
             "Director",
             options=[""] + sorted(pelis_df["autor"].dropna().unique().tolist())
         )
 
-    # --- Género ---
     with col3:
         genero_peli = st.selectbox(
             "Género",
             options=[""] + sorted(pelis_df["genero"].dropna().unique().tolist())
         )
 
-    # --- Saga ---
     with col4:
         saga_peli = st.selectbox(
             "Saga",
@@ -157,29 +161,36 @@ with tab_peliculas:
     # Aplicar filtros
     if titulo_peli:
         pelis_df = pelis_df[pelis_df["titulo"] == titulo_peli]
+
     if director:
         pelis_df = pelis_df[pelis_df["autor"] == director]
+
     if genero_peli:
         pelis_df = pelis_df[pelis_df["genero"] == genero_peli]
+
     if saga_peli:
         pelis_df = pelis_df[pelis_df["saga"] == saga_peli]
 
+    # Ocultamos ISBN en películas
     st.dataframe(
         pelis_df[["id"] + [c for c in pelis_df.columns if c not in ["id", "isbn"]]],
         use_container_width=True
     )
 
 # ==================================================
-# 🔄 PRÉSTAMOS - búsqueda tipo selectbox
+# 🔄 PRÉSTAMOS
 # ==================================================
 with tab_prestamos:
     st.title("🔄 Gestión de préstamos")
 
+    # Lista de opciones con id y título
     opciones = df["id"].astype(str) + " - " + df["titulo"]
+
+    # Barra de selección tipo búsqueda
     seleccion = st.selectbox(
         "Selecciona una obra",
         options=opciones,
-        index=0,
+        index=0,  # por defecto selecciona la primera
     )
 
     obra_id = int(seleccion.split(" - ")[0])
