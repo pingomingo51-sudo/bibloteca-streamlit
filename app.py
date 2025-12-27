@@ -16,7 +16,6 @@ st.set_page_config(
 def cargar_datos():
     df = pd.read_csv("biblioteca.csv", sep=';')
     df.columns = df.columns.str.strip().str.lower()
-    # Aseguramos que 'isbn' y 'fecha_prestamo' existan
     if 'isbn' not in df.columns:
         df['isbn'] = ''
     if 'fecha_prestamo' not in df.columns:
@@ -37,7 +36,7 @@ tab_inicio, tab_libros, tab_peliculas, tab_prestamos = st.tabs(
 )
 
 # ==================================================
-# 🏠 INICIO (vista general)
+# 🏠 INICIO
 # ==================================================
 with tab_inicio:
     st.title("📖 Biblioteca Municipal")
@@ -62,116 +61,91 @@ with tab_inicio:
                  use_container_width=True)
 
 # ==================================================
-# 📚 LIBROS (ISBN visible)
+# 📚 LIBROS (selectbox único, búsqueda integrada)
 # ==================================================
 with tab_libros:
     st.title("📚 Libros")
-
     libros_df = df[df["tipo"].str.lower() == "libro"]
-
     col1, col2, col3, col4, col5 = st.columns(5)
 
+    # Título
     with col1:
-        titulo = st.selectbox(
-            "Título",
-            options=[""] + sorted(libros_df["titulo"].dropna().unique().tolist()),
-            format_func=lambda x: x
-        )
+        opciones_titulo = libros_df["titulo"].dropna().unique().tolist()
+        titulo = st.selectbox("Título", options=sorted(opciones_titulo))
 
+    # Autor
     with col2:
-        autor = st.selectbox(
-            "Autor",
-            options=[""] + sorted(libros_df["autor"].dropna().unique().tolist())
-        )
+        opciones_autor = libros_df["autor"].dropna().unique().tolist()
+        autor = st.selectbox("Autor", options=sorted(opciones_autor))
 
+    # Género
     with col3:
-        genero = st.selectbox(
-            "Género",
-            options=[""] + sorted(libros_df["genero"].dropna().unique().tolist())
-        )
+        opciones_genero = libros_df["genero"].dropna().unique().tolist()
+        genero = st.selectbox("Género", options=sorted(opciones_genero))
 
+    # Saga
     with col4:
-        saga = st.selectbox(
-            "Saga",
-            options=[""] + sorted(libros_df["saga"].dropna().unique().tolist())
-        )
+        opciones_saga = libros_df["saga"].dropna().unique().tolist()
+        saga = st.selectbox("Saga", options=sorted(opciones_saga))
 
+    # ISBN
     with col5:
-        isbn = st.selectbox(
-            "ISBN",
-            options=[""] + sorted(libros_df["isbn"].dropna().astype(str).unique().tolist())
-        )
+        opciones_isbn = libros_df["isbn"].dropna().astype(str).unique().tolist()
+        isbn = st.selectbox("ISBN", options=sorted(opciones_isbn))
 
     # Aplicar filtros
     if titulo:
         libros_df = libros_df[libros_df["titulo"] == titulo]
-
     if autor:
         libros_df = libros_df[libros_df["autor"] == autor]
-
     if genero:
         libros_df = libros_df[libros_df["genero"] == genero]
-
     if saga:
         libros_df = libros_df[libros_df["saga"] == saga]
-
     if isbn:
         libros_df = libros_df[libros_df["isbn"].astype(str) == isbn]
 
-    # Mostrar libros (ISBN incluido)
-    st.dataframe(
-        libros_df[["id"] + [c for c in libros_df.columns if c != "id"]],
-        use_container_width=True
-    )
+    st.dataframe(libros_df[["id"] + [c for c in libros_df.columns if c != "id"]],
+                 use_container_width=True)
 
 # ==================================================
-# 🎬 PELÍCULAS (ISBN oculto)
+# 🎬 PELÍCULAS (selectbox único)
 # ==================================================
 with tab_peliculas:
     st.title("🎬 Películas")
-
     pelis_df = df[df["tipo"].str.lower() == "película"]
-
     col1, col2, col3, col4 = st.columns(4)
 
+    # Título
     with col1:
-        titulo_peli = st.selectbox(
-            "Película",
-            options=[""] + sorted(pelis_df["titulo"].dropna().unique().tolist())
-        )
+        opciones_titulo = pelis_df["titulo"].dropna().unique().tolist()
+        titulo_peli = st.selectbox("Película", options=sorted(opciones_titulo))
 
+    # Director
     with col2:
-        director = st.selectbox(
-            "Director",
-            options=[""] + sorted(pelis_df["autor"].dropna().unique().tolist())
-        )
+        opciones_director = pelis_df["autor"].dropna().unique().tolist()
+        director = st.selectbox("Director", options=sorted(opciones_director))
 
+    # Género
     with col3:
-        genero_peli = st.selectbox(
-            "Género",
-            options=[""] + sorted(pelis_df["genero"].dropna().unique().tolist())
-        )
+        opciones_genero = pelis_df["genero"].dropna().unique().tolist()
+        genero_peli = st.selectbox("Género", options=sorted(opciones_genero))
 
+    # Saga
     with col4:
-        saga_peli = st.selectbox(
-            "Saga",
-            options=[""] + sorted(pelis_df["saga"].dropna().unique().tolist())
-        )
+        opciones_saga = pelis_df["saga"].dropna().unique().tolist()
+        saga_peli = st.selectbox("Saga", options=sorted(opciones_saga))
 
     # Aplicar filtros
     if titulo_peli:
         pelis_df = pelis_df[pelis_df["titulo"] == titulo_peli]
-
     if director:
         pelis_df = pelis_df[pelis_df["autor"] == director]
-
     if genero_peli:
         pelis_df = pelis_df[pelis_df["genero"] == genero_peli]
-
     if saga_peli:
         pelis_df = pelis_df[pelis_df["saga"] == saga_peli]
 
-    # Ocultamos ISBN en películas
     st.dataframe(
         pelis_df[["id"] + [c for c in pelis_df.columns if c not in ["id", "isbn"]]],
         use_container_width=True
@@ -183,14 +157,11 @@ with tab_peliculas:
 with tab_prestamos:
     st.title("🔄 Gestión de préstamos")
 
-    # Lista de opciones con id y título
     opciones = df["id"].astype(str) + " - " + df["titulo"]
-
-    # Barra de selección tipo búsqueda
     seleccion = st.selectbox(
         "Selecciona una obra",
         options=opciones,
-        index=0,  # por defecto selecciona la primera
+        index=0,
     )
 
     obra_id = int(seleccion.split(" - ")[0])
@@ -218,3 +189,4 @@ with tab_prestamos:
             df.loc[df["id"] == obra_id, "fecha_prestamo"] = ""
             guardar_datos(df)
             st.success("Devolución registrada correctamente")
+
