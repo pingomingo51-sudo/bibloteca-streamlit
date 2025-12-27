@@ -61,7 +61,7 @@ with tab_inicio:
                  use_container_width=True)
 
 # ==================================================
-# 📚 LIBROS (ISBN visible) - compatible móvil
+# 📚 LIBROS (ISBN visible) - selectbox único
 # ==================================================
 with tab_libros:
     st.title("📚 Libros")
@@ -70,39 +70,31 @@ with tab_libros:
 
     # --- Título ---
     with col1:
-        texto_titulo = st.text_input("Escribe el título")
-        if texto_titulo:
-            opciones_titulo = libros_df[libros_df["titulo"].str.contains(texto_titulo, case=False, na=False)]["titulo"].unique().tolist()
-        else:
-            opciones_titulo = libros_df["titulo"].dropna().unique().tolist()
-        titulo = st.selectbox("Título", options=[""] + sorted(opciones_titulo))
+        titulo = st.selectbox(
+            "Título",
+            options=[""] + sorted(libros_df["titulo"].dropna().unique().tolist())
+        )
 
     # --- Autor ---
     with col2:
-        texto_autor = st.text_input("Escribe el autor")
-        if texto_autor:
-            opciones_autor = libros_df[libros_df["autor"].str.contains(texto_autor, case=False, na=False)].dropna()["autor"].unique().tolist()
-        else:
-            opciones_autor = libros_df["autor"].dropna().unique().tolist()
-        autor = st.selectbox("Autor", options=[""] + sorted(opciones_autor))
+        autor = st.selectbox(
+            "Autor",
+            options=[""] + sorted(libros_df["autor"].dropna().unique().tolist())
+        )
 
     # --- Género ---
     with col3:
-        texto_genero = st.text_input("Escribe el género")
-        if texto_genero:
-            opciones_genero = libros_df[libros_df["genero"].str.contains(texto_genero, case=False, na=False)].dropna()["genero"].unique().tolist()
-        else:
-            opciones_genero = libros_df["genero"].dropna().unique().tolist()
-        genero = st.selectbox("Género", options=[""] + sorted(opciones_genero))
+        genero = st.selectbox(
+            "Género",
+            options=[""] + sorted(libros_df["genero"].dropna().unique().tolist())
+        )
 
     # --- Saga ---
     with col4:
-        texto_saga = st.text_input("Escribe la saga")
-        if texto_saga:
-            opciones_saga = libros_df[libros_df["saga"].str.contains(texto_saga, case=False, na=False)].dropna()["saga"].unique().tolist()
-        else:
-            opciones_saga = libros_df["saga"].dropna().unique().tolist()
-        saga = st.selectbox("Saga", options=[""] + sorted(opciones_saga))
+        saga = st.selectbox(
+            "Saga",
+            options=[""] + sorted(libros_df["saga"].dropna().unique().tolist())
+        )
 
     # --- ISBN ---
     with col5:
@@ -127,7 +119,7 @@ with tab_libros:
                  use_container_width=True)
 
 # ==================================================
-# 🎬 PELÍCULAS (ISBN oculto) - compatible móvil
+# 🎬 PELÍCULAS (ISBN oculto) - selectbox único
 # ==================================================
 with tab_peliculas:
     st.title("🎬 Películas")
@@ -136,39 +128,31 @@ with tab_peliculas:
 
     # --- Título ---
     with col1:
-        texto_titulo = st.text_input("Escribe el título de la película")
-        if texto_titulo:
-            opciones_titulo = pelis_df[pelis_df["titulo"].str.contains(texto_titulo, case=False, na=False)]["titulo"].unique().tolist()
-        else:
-            opciones_titulo = pelis_df["titulo"].dropna().unique().tolist()
-        titulo_peli = st.selectbox("Película", options=[""] + sorted(opciones_titulo))
+        titulo_peli = st.selectbox(
+            "Película",
+            options=[""] + sorted(pelis_df["titulo"].dropna().unique().tolist())
+        )
 
     # --- Director ---
     with col2:
-        texto_director = st.text_input("Escribe el director")
-        if texto_director:
-            opciones_director = pelis_df[pelis_df["autor"].str.contains(texto_director, case=False, na=False)].dropna()["autor"].unique().tolist()
-        else:
-            opciones_director = pelis_df["autor"].dropna().unique().tolist()
-        director = st.selectbox("Director", options=[""] + sorted(opciones_director))
+        director = st.selectbox(
+            "Director",
+            options=[""] + sorted(pelis_df["autor"].dropna().unique().tolist())
+        )
 
     # --- Género ---
     with col3:
-        texto_genero = st.text_input("Escribe el género")
-        if texto_genero:
-            opciones_genero = pelis_df[pelis_df["genero"].str.contains(texto_genero, case=False, na=False)].dropna()["genero"].unique().tolist()
-        else:
-            opciones_genero = pelis_df["genero"].dropna().unique().tolist()
-        genero_peli = st.selectbox("Género", options=[""] + sorted(opciones_genero))
+        genero_peli = st.selectbox(
+            "Género",
+            options=[""] + sorted(pelis_df["genero"].dropna().unique().tolist())
+        )
 
     # --- Saga ---
     with col4:
-        texto_saga = st.text_input("Escribe la saga")
-        if texto_saga:
-            opciones_saga = pelis_df[pelis_df["saga"].str.contains(texto_saga, case=False, na=False)].dropna()["saga"].unique().tolist()
-        else:
-            opciones_saga = pelis_df["saga"].dropna().unique().tolist()
-        saga_peli = st.selectbox("Saga", options=[""] + sorted(opciones_saga))
+        saga_peli = st.selectbox(
+            "Saga",
+            options=[""] + sorted(pelis_df["saga"].dropna().unique().tolist())
+        )
 
     # Aplicar filtros
     if titulo_peli:
@@ -186,7 +170,7 @@ with tab_peliculas:
     )
 
 # ==================================================
-# 🔄 PRÉSTAMOS - con búsqueda
+# 🔄 PRÉSTAMOS - búsqueda tipo selectbox
 # ==================================================
 with tab_prestamos:
     st.title("🔄 Gestión de préstamos")
