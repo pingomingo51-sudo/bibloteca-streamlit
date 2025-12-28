@@ -69,18 +69,34 @@ with tab_inicio:
     # ---- Retrasos ----
     st.subheader("⏰ Préstamos con más de 30 días")
 
-    prestados = df[df["fecha_prestamo"] != ""].copy()
+    prestados = df[df["fecha_prestamo"].notna() & (df["fecha_prestamo"] != "")].copy()
+
     if not prestados.empty:
-        prestados["fecha_prestamo"] = pd.to_datetime(prestados["fecha_prestamo"])
-        prestados["dias"] = (pd.Timestamp.now() - prestados["fecha_prestamo"]).dt.days
+        prestados["fecha_prestamo"] = pd.to_datetime(
+            prestados["fecha_prestamo"],
+            errors="coerce"
+        )
+
+        prestados = prestados.dropna(subset=["fecha_prestamo"])
+
+        prestados["dias"] = (
+            pd.Timestamp.now() - prestados["fecha_prestamo"]
+        ).dt.days
+
         retrasos = prestados[prestados["dias"] >= 30]
 
-        st.dataframe(
-            retrasos[["id", "titulo", "prestado_a", "email", "fecha_prestamo", "dias"]],
-            use_container_width=True
-        )
+        if not retrasos.empty:
+            st.dataframe(
+                retrasos[
+                    ["id", "titulo", "prestado_a", "email", "fecha_prestamo", "dias"]
+                ],
+                use_container_width=True
+            )
+        else:
+            st.info("No hay préstamos con más de 30 días.")
     else:
         st.info("No hay préstamos registrados.")
+
 
 # ==================================================
 # 📚 LIBROS
