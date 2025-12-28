@@ -17,15 +17,9 @@ def cargar_datos():
     df = pd.read_csv("biblioteca.csv", sep=";")
     df.columns = df.columns.str.strip().str.lower()
 
-    # Asegurar columnas necesarias
-    if "isbn" not in df.columns:
-        df["isbn"] = ""
-    if "fecha_prestamo" not in df.columns:
-        df["fecha_prestamo"] = ""
-    if "email" not in df.columns:
-        df["email"] = ""
-    if "prestado_a" not in df.columns:
-        df["prestado_a"] = ""
+    for col in ["isbn", "fecha_prestamo", "email", "prestado_a"]:
+        if col not in df.columns:
+            df[col] = ""
 
     return df
 
@@ -54,10 +48,7 @@ with tab_inicio:
     col1.metric("Total", len(df))
     col2.metric("Libros", len(df[df["tipo"].str.lower() == "libro"]))
     col3.metric("Películas", len(df[df["tipo"].str.lower() == "película"]))
-    col4.metric(
-        "Prestados",
-        len(df[df["disponible"].str.lower() != "sí"])
-    )
+    col4.metric("Prestados", len(df[df["disponible"].str.lower() != "sí"]))
 
     st.subheader("Disponibles")
     disponibles = df[df["disponible"].str.lower() == "sí"]
@@ -92,10 +83,7 @@ with tab_libros:
     with col4:
         saga = st.selectbox("Saga", [""] + sorted(libros_df["saga"].dropna().unique()))
     with col5:
-        isbn = st.selectbox(
-            "ISBN",
-            [""] + sorted(libros_df["isbn"].dropna().astype(str).unique())
-        )
+        isbn = st.selectbox("ISBN", [""] + sorted(libros_df["isbn"].dropna().astype(str).unique()))
 
     if titulo:
         libros_df = libros_df[libros_df["titulo"] == titulo]
@@ -161,7 +149,7 @@ with tab_prestamos:
     st.write(f"**Título:** {fila['titulo']}")
     st.write(f"**Disponible:** {fila['disponible']}")
 
-    if fila["disponible"].str.lower() == "sí":
+    if str(fila["disponible"]).lower() == "sí":
         nombre = st.text_input("Nombre de la persona")
         email = st.text_input("Email")
 
