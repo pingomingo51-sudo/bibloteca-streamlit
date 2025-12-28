@@ -17,17 +17,15 @@ def cargar_datos():
     df = pd.read_csv("biblioteca.csv", sep=";")
     df.columns = df.columns.str.strip().str.lower()
 
-    columnas_necesarias = {
-        "isbn": "",
-        "fecha_prestamo": "",
-        "prestado_a": "",
-        "email": "",
-        "disponible": "Sí"
-    }
-
-    for col, default in columnas_necesarias.items():
-        if col not in df.columns:
-            df[col] = default
+    # Asegurar columnas necesarias
+    if "isbn" not in df.columns:
+        df["isbn"] = ""
+    if "fecha_prestamo" not in df.columns:
+        df["fecha_prestamo"] = ""
+    if "email" not in df.columns:
+        df["email"] = ""
+    if "prestado_a" not in df.columns:
+        df["prestado_a"] = ""
 
     return df
 
@@ -56,44 +54,24 @@ with tab_inicio:
     col1.metric("Total", len(df))
     col2.metric("Libros", len(df[df["tipo"].str.lower() == "libro"]))
     col3.metric("Películas", len(df[df["tipo"].str.lower() == "película"]))
-    col4.metric("Prestados", len(df[df["disponible"].str.lower() != "sí"]))
+    col4.metric(
+        "Prestados",
+        len(df[df["disponible"].str.lower() != "sí"])
+    )
 
-    st.subheader("⏰ Préstamos con más de 30 días")
+    st.subheader("Disponibles")
+    disponibles = df[df["disponible"].str.lower() == "sí"]
+    st.dataframe(
+        disponibles[["id"] + [c for c in disponibles.columns if c != "id"]],
+        width=1200
+    )
 
-    prestados = df[
-        df["fecha_prestamo"].notna() &
-        (df["fecha_prestamo"].astype(str).str.strip() != "")
-    ].copy()
-
-    if not prestados.empty:
-        prestados["fecha_prestamo"] = pd.to_datetime(
-            prestados["fecha_prestamo"],
-            format="mixed",
-            errors="coerce"
-        )
-
-        prestados = prestados.dropna(subset=["fecha_prestamo"])
-
-        if not prestados.empty:
-            prestados["dias"] = (
-                pd.Timestamp.now() - prestados["fecha_prestamo"]
-            ).dt.days
-
-            retrasos = prestados[prestados["dias"] >= 30]
-
-            if not retrasos.empty:
-                st.dataframe(
-                    retrasos[
-                        ["id", "titulo", "prestado_a", "email", "fecha_prestamo", "dias"]
-                    ],
-                    width=1200
-                )
-            else:
-                st.info("No hay préstamos con más de 30 días.")
-        else:
-            st.info("No hay fechas de préstamo válidas.")
-    else:
-        st.info("No hay préstamos registrados.")
+    st.subheader("No disponibles")
+    no_disponibles = df[df["disponible"].str.lower() != "sí"]
+    st.dataframe(
+        no_disponibles[["id"] + [c for c in no_disponibles.columns if c != "id"]],
+        width=1200
+    )
 
 # ==================================================
 # 📚 LIBROS
@@ -114,7 +92,10 @@ with tab_libros:
     with col4:
         saga = st.selectbox("Saga", [""] + sorted(libros_df["saga"].dropna().unique()))
     with col5:
-        isbn = st.selectbox("ISBN", [""] + sorted(libros_df["isbn"].dropna().astype(str).unique()))
+        isbn = st.selectbox(
+            "ISBN",
+            [""] + sorted(libros_df["isbn"].dropna().astype(str).unique())
+        )
 
     if titulo:
         libros_df = libros_df[libros_df["titulo"] == titulo]
@@ -180,8 +161,8 @@ with tab_prestamos:
     st.write(f"**Título:** {fila['titulo']}")
     st.write(f"**Disponible:** {fila['disponible']}")
 
-    if fila["disponible"].lower() == "sí":
-        nombre = st.text_input("Nombre completo")
+    if fila["disponible"].str.lower() == "sí":
+        nombre = st.text_input("Nombre de la persona")
         email = st.text_input("Email")
 
         if st.button("📕 Prestar"):
