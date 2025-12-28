@@ -42,7 +42,7 @@ tab_inicio, tab_libros, tab_peliculas, tab_prestamos = st.tabs(
 # 🏠 INICIO
 # ==================================================
 with tab_inicio:
-    st.title("📖 Biblioteca Municipal")
+    st.title("📖 Biblioteca Municipal Almaluez")
 
     col1, col2, col3, col4 = st.columns(4)
     col1.metric("Total", len(df))
@@ -50,17 +50,35 @@ with tab_inicio:
     col3.metric("Películas", len(df[df["tipo"].str.lower() == "película"]))
     col4.metric("Prestados", len(df[df["disponible"].str.lower() != "sí"]))
 
+    # -------------------------
+    # DISPONIBLES
+    # -------------------------
     st.subheader("Disponibles")
     disponibles = df[df["disponible"].str.lower() == "sí"]
+
+    columnas_disponibles = [
+        c for c in disponibles.columns
+        if c not in ["disponible", "prestado_a", "email", "fecha_prestamo"]
+    ]
+
     st.dataframe(
-        disponibles[["id"] + [c for c in disponibles.columns if c != "id"]],
+        disponibles[["id"] + [c for c in columnas_disponibles if c != "id"]],
         width=1200
     )
 
+    # -------------------------
+    # NO DISPONIBLES
+    # -------------------------
     st.subheader("No disponibles")
     no_disponibles = df[df["disponible"].str.lower() != "sí"]
+
+    columnas_no_disponibles = [
+        c for c in no_disponibles.columns
+        if c != "disponible"
+    ]
+
     st.dataframe(
-        no_disponibles[["id"] + [c for c in no_disponibles.columns if c != "id"]],
+        no_disponibles[["id"] + [c for c in columnas_no_disponibles if c != "id"]],
         width=1200
     )
 
@@ -83,7 +101,10 @@ with tab_libros:
     with col4:
         saga = st.selectbox("Saga", [""] + sorted(libros_df["saga"].dropna().unique()))
     with col5:
-        isbn = st.selectbox("ISBN", [""] + sorted(libros_df["isbn"].dropna().astype(str).unique()))
+        isbn = st.selectbox(
+            "ISBN",
+            [""] + sorted(libros_df["isbn"].dropna().astype(str).unique())
+        )
 
     if titulo:
         libros_df = libros_df[libros_df["titulo"] == titulo]
