@@ -16,10 +16,12 @@ st.set_page_config(
 def cargar_datos():
     df = pd.read_csv("biblioteca.csv", sep=';')
     df.columns = df.columns.str.strip().str.lower()
-    if 'isbn' not in df.columns:
-        df['isbn'] = ''
-    if 'fecha_prestamo' not in df.columns:
-        df['fecha_prestamo'] = ''
+
+    # Asegurar columnas necesarias
+    for col in ["isbn", "fecha_prestamo", "email"]:
+        if col not in df.columns:
+            df[col] = ""
+
     return df
 
 def guardar_datos(df):
@@ -47,53 +49,73 @@ with tab_inicio:
     col3.metric("Películas", len(df[df["tipo"].str.lower() == "película"]))
     col4.metric(
         "Prestados",
-        len(df[df["prestado_a"].notna() & (df["prestado_a"] != "")])
+        len(df[df["disponible"].str.lower() != "sí"])
     )
 
-    st.subheader("Disponibles")
+    st.subheader("📗 Disponibles")
     disponibles_df = df[df["disponible"].str.lower() == "sí"]
-    st.dataframe(disponibles_df[["id"] + [c for c in disponibles_df.columns if c != "id"]],
-                 use_container_width=True)
+    st.dataframe(
+        disponibles_df[["id"] + [c for c in disponibles_df.columns if c != "id"]],
+        use_container_width=True
+    )
 
-    st.subheader("No disponibles")
+    st.subheader("📕 No disponibles")
     no_disponibles_df = df[df["disponible"].str.lower() != "sí"]
-    st.dataframe(no_disponibles_df[["id"] + [c for c in no_disponibles_df.columns if c != "id"]],
-                 use_container_width=True)
+    st.dataframe(
+        no_disponibles_df[["id"] + [c for c in no_disponibles_df.columns if c != "id"]],
+        use_container_width=True
+    )
+
+    # ---- Retrasos ----
+    st.subheader("⏰ Préstamos con más de 30 días")
+
+    prestados = df[df["fecha_prestamo"] != ""].copy()
+    if not prestados.empty:
+        prestados["fecha_prestamo"] = pd.to_datetime(prestados["fecha_prestamo"])
+        prestados["dias"] = (pd.Timestamp.now() - prestados["fecha_prestamo"]).dt.days
+        retrasos = prestados[prestados["dias"] >= 30]
+
+        st.dataframe(
+            retrasos[["id", "titulo", "prestado_a", "email", "fecha_prestamo", "dias"]],
+            use_container_width=True
+        )
+    else:
+        st.info("No hay préstamos registrados.")
 
 # ==================================================
-# 📚 LIBROS (selectbox único, búsqueda integrada)
+# 📚 LIBROS
 # ==================================================
 with tab_libros:
     st.title("📚 Libros")
     libros_df = df[df["tipo"].str.lower() == "libro"]
+
     col1, col2, col3, col4, col5 = st.columns(5)
 
-    # Título
-    with col1:
-        opciones_titulo = libros_df["titulo"].dropna().unique().tolist()
-        titulo = st.selectbox("Título", options=sorted(opciones_titulo))
+    titulo = st.selectbox(
+        "Título",
+        [""] + sorted(libros_df["titulo"].dropna().unique().tolist())
+    )
 
-    # Autor
-    with col2:
-        opciones_autor = libros_df["autor"].dropna().unique().tolist()
-        autor = st.selectbox("Autor", options=sorted(opciones_autor))
+    autor = st.selectbox(
+        "Autor",
+        [""] + sorted(libros_df["autor"].dropna().unique().tolist())
+    )
 
-    # Género
-    with col3:
-        opciones_genero = libros_df["genero"].dropna().unique().tolist()
-        genero = st.selectbox("Género", options=sorted(opciones_genero))
+    genero = st.selectbox(
+        "Género",
+        [""] + sorted(libros_df["genero"].dropna().unique().tolist())
+    )
 
-    # Saga
-    with col4:
-        opciones_saga = libros_df["saga"].dropna().unique().tolist()
-        saga = st.selectbox("Saga", options=sorted(opciones_saga))
+    saga = st.selectbox(
+        "Saga",
+        [""] + sorted(libros_df["saga"].dropna().unique().tolist())
+    )
 
-    # ISBN
-    with col5:
-        opciones_isbn = libros_df["isbn"].dropna().astype(str).unique().tolist()
-        isbn = st.selectbox("ISBN", options=sorted(opciones_isbn))
+    isbn = st.selectbox(
+        "ISBN",
+        [""] + sorted(libros_df["isbn"].dropna().astype(str).unique().tolist())
+    )
 
-    # Aplicar filtros
     if titulo:
         libros_df = libros_df[libros_df["titulo"] == titulo]
     if autor:
@@ -105,38 +127,38 @@ with tab_libros:
     if isbn:
         libros_df = libros_df[libros_df["isbn"].astype(str) == isbn]
 
-    st.dataframe(libros_df[["id"] + [c for c in libros_df.columns if c != "id"]],
-                 use_container_width=True)
+    st.dataframe(
+        libros_df[["id"] + [c for c in libros_df.columns if c != "id"]],
+        use_container_width=True
+    )
 
 # ==================================================
-# 🎬 PELÍCULAS (selectbox único)
+# 🎬 PELÍCULAS
 # ==================================================
 with tab_peliculas:
     st.title("🎬 Películas")
     pelis_df = df[df["tipo"].str.lower() == "película"]
-    col1, col2, col3, col4 = st.columns(4)
 
-    # Título
-    with col1:
-        opciones_titulo = pelis_df["titulo"].dropna().unique().tolist()
-        titulo_peli = st.selectbox("Película", options=sorted(opciones_titulo))
+    titulo_peli = st.selectbox(
+        "Película",
+        [""] + sorted(pelis_df["titulo"].dropna().unique().tolist())
+    )
 
-    # Director
-    with col2:
-        opciones_director = pelis_df["autor"].dropna().unique().tolist()
-        director = st.selectbox("Director", options=sorted(opciones_director))
+    director = st.selectbox(
+        "Director",
+        [""] + sorted(pelis_df["autor"].dropna().unique().tolist())
+    )
 
-    # Género
-    with col3:
-        opciones_genero = pelis_df["genero"].dropna().unique().tolist()
-        genero_peli = st.selectbox("Género", options=sorted(opciones_genero))
+    genero_peli = st.selectbox(
+        "Género",
+        [""] + sorted(pelis_df["genero"].dropna().unique().tolist())
+    )
 
-    # Saga
-    with col4:
-        opciones_saga = pelis_df["saga"].dropna().unique().tolist()
-        saga_peli = st.selectbox("Saga", options=sorted(opciones_saga))
+    saga_peli = st.selectbox(
+        "Saga",
+        [""] + sorted(pelis_df["saga"].dropna().unique().tolist())
+    )
 
-    # Aplicar filtros
     if titulo_peli:
         pelis_df = pelis_df[pelis_df["titulo"] == titulo_peli]
     if director:
@@ -158,11 +180,7 @@ with tab_prestamos:
     st.title("🔄 Gestión de préstamos")
 
     opciones = df["id"].astype(str) + " - " + df["titulo"]
-    seleccion = st.selectbox(
-        "Selecciona una obra",
-        options=opciones,
-        index=0,
-    )
+    seleccion = st.selectbox("Selecciona una obra", opciones)
 
     obra_id = int(seleccion.split(" - ")[0])
     fila = df[df["id"] == obra_id].iloc[0]
@@ -172,20 +190,32 @@ with tab_prestamos:
     st.write(f"**ISBN:** {fila['isbn'] if fila['tipo'].lower() == 'libro' else '—'}")
     st.write(f"**Disponible:** {fila['disponible']}")
     st.write(f"**Prestado a:** {fila['prestado_a'] if fila['prestado_a'] else '—'}")
+    st.write(f"**Email:** {fila['email'] if fila['email'] else '—'}")
     st.write(f"**Fecha de préstamo:** {fila['fecha_prestamo'] if fila['fecha_prestamo'] else '—'}")
 
-    if fila["disponible"].lower() == "sí":
+    if fila["disponible"].str.lower() == "sí":
         persona = st.text_input("Nombre de la persona")
+        email = st.text_input("Email de contacto")
+
         if st.button("📕 Prestar"):
-            df.loc[df["id"] == obra_id, "disponible"] = "No"
-            df.loc[df["id"] == obra_id, "prestado_a"] = persona
-            df.loc[df["id"] == obra_id, "fecha_prestamo"] = pd.Timestamp.now().strftime("%Y-%m-%d %H:%M")
-            guardar_datos(df)
-            st.success("Préstamo registrado correctamente")
+            if not persona or not email:
+                st.error("Debes introducir nombre y email")
+            elif "@" not in email:
+                st.error("El email no es válido")
+            else:
+                df.loc[df["id"] == obra_id, "disponible"] = "No"
+                df.loc[df["id"] == obra_id, "prestado_a"] = persona
+                df.loc[df["id"] == obra_id, "email"] = email
+                df.loc[df["id"] == obra_id, "fecha_prestamo"] = (
+                    pd.Timestamp.now().strftime("%Y-%m-%d")
+                )
+                guardar_datos(df)
+                st.success("Préstamo registrado correctamente, tiene 1 mes para devolverlo")
     else:
         if st.button("📗 Devolver"):
             df.loc[df["id"] == obra_id, "disponible"] = "Sí"
             df.loc[df["id"] == obra_id, "prestado_a"] = ""
+            df.loc[df["id"] == obra_id, "email"] = ""
             df.loc[df["id"] == obra_id, "fecha_prestamo"] = ""
             guardar_datos(df)
             st.success("Devolución registrada correctamente")

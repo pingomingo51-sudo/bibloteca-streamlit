@@ -1,12 +1,12 @@
-id;tipo;titulo;autor;genero;saga;anio;formato;isbn;disponible;prestado_a;fecha_prestamo
-1;Libro;El Hobbit;J.R.R. Tolkien;Fantasía;Tierra Media;1937;Tapa blanda;9428432492.0;Sí;;
-2;Libro;La Comunidad del Anillo;J.R.R. Tolkien;Fantasía;Tierra Media;1954;Tapa dura;874924729.0;Sí;;
-3;Libro;Las Dos Torres;J.R.R. Tolkien;Fantasía;Tierra Media;1954;Tapa dura;3425785.0;Sí;;
-4;Libro;El Retorno del Rey;J.R.R. Tolkien;Fantasía;Tierra Media;1955;Tapa dura;43645688.0;No;Ana López;
-5;Libro;1984;George Orwell;Ciencia ficción;;1949;Bolsillo;4646768.0;Sí;;
-6;Libro;El nombre del viento;Patrick Rothfuss;Fantasía;Crónica del Asesino de Reyes;2007;Tapa blanda;2645563.0;No;Carlos Ruiz;
-7;Película;El Señor de los Anillos: La Comunidad del Anillo;Peter Jackson;Fantasía;Tierra Media;2001;DVD;;Sí;;
-8;Película;El Señor de los Anillos: Las Dos Torres;Peter Jackson;Fantasía;Tierra Media;2002;BluRay;;Sí;;
-9;Película;Interestellar;Christopher Nolan;Ciencia ficción;;2014;BluRay;;No;María Pérez;
-10;Película;Origen;Christopher Nolan;Ciencia ficción;;2010;DVD;;Sí;;
-11;Película;La Princesa Mononoke;Hayao Miyazaki;Animación;;1997;DVD;;Sí;;
+id;tipo;titulo;autor;genero;saga;anio;formato;isbn;disponible;prestado_a;email;fecha_prestamo
+1;Libro;El Hobbit;J.R.R. Tolkien;Fantasía;Tierra Media;1937;Tapa blanda;9428432492.0;Sí;;;
+2;Libro;La Comunidad del Anillo;J.R.R. Tolkien;Fantasía;Tierra Media;1954;Tapa dura;874924729.0;Sí;;;
+3;Libro;Las Dos Torres;J.R.R. Tolkien;Fantasía;Tierra Media;1954;Tapa dura;3425785.0;Sí;;;
+4;Libro;El Retorno del Rey;J.R.R. Tolkien;Fantasía;Tierra Media;1955;Tapa dura;43645688.0;No;Ana López;email@dadas;2024-11-05
+5;Libro;1984;George Orwell;Ciencia ficción;;1949;Bolsillo;4646768.0;Sí;;;
+6;Libro;El nombre del viento;Patrick Rothfuss;Fantasía;Crónica del Asesino de Reyes;2007;Tapa blanda;2645563.0;No;Carlos Ruiz;email@dada;2014
+7;Película;El Señor de los Anillos: La Comunidad del Anillo;Peter Jackson;Fantasía;Tierra Media;2001;DVD;;Sí;;;
+8;Película;El Señor de los Anillos: Las Dos Torres;Peter Jackson;Fantasía;Tierra Media;2002;BluRay;;Sí;;;
+9;Película;Interestellar;Christopher Nolan;Ciencia ficción;;2014;BluRay;;No;María Pérez;email@fsap;2903
+10;Película;Origen;Christopher Nolan;Ciencia ficción;;2010;DVD;;Sí;;;
+11;Película;La Princesa Mononoke;Hayao Miyazaki;Animación;;1997;DVD;;Sí;;;
