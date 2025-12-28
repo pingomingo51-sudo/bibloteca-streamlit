@@ -56,13 +56,13 @@ with tab_inicio:
     st.subheader("Disponibles")
     disponibles = df[df["disponible"].str.lower() == "sí"]
 
-    columnas_disponibles = [
-        c for c in disponibles.columns
-        if c not in ["disponible", "prestado_a", "email", "fecha_prestamo"]
-    ]
+    columnas_disp = [c for c in disponibles.columns
+                     if c not in ["disponible", "prestado_a", "email", "fecha_prestamo"]]
+
+    columnas_disp = ["id"] + [c for c in columnas_disp if c != "id"]
 
     st.dataframe(
-        disponibles[["id"] + [c for c in columnas_disponibles if c != "id"]],
+        disponibles[columnas_disp],
         width=1200
     )
 
@@ -72,13 +72,11 @@ with tab_inicio:
     st.subheader("No disponibles")
     no_disponibles = df[df["disponible"].str.lower() != "sí"]
 
-    columnas_no_disponibles = [
-        c for c in no_disponibles.columns
-        if c != "disponible"
-    ]
+    columnas_no = ["id"] + [c for c in no_disponibles.columns
+                            if c not in ["id", "disponible"]]
 
     st.dataframe(
-        no_disponibles[["id"] + [c for c in columnas_no_disponibles if c != "id"]],
+        no_disponibles[columnas_no],
         width=1200
     )
 
@@ -101,10 +99,7 @@ with tab_libros:
     with col4:
         saga = st.selectbox("Saga", [""] + sorted(libros_df["saga"].dropna().unique()))
     with col5:
-        isbn = st.selectbox(
-            "ISBN",
-            [""] + sorted(libros_df["isbn"].dropna().astype(str).unique())
-        )
+        isbn = st.selectbox("ISBN", [""] + sorted(libros_df["isbn"].dropna().astype(str).unique()))
 
     if titulo:
         libros_df = libros_df[libros_df["titulo"] == titulo]
@@ -117,8 +112,10 @@ with tab_libros:
     if isbn:
         libros_df = libros_df[libros_df["isbn"].astype(str) == isbn]
 
+    columnas_libros = ["id"] + [c for c in libros_df.columns if c != "id"]
+
     st.dataframe(
-        libros_df[["id"] + [c for c in libros_df.columns if c != "id"]],
+        libros_df[columnas_libros],
         width=1200
     )
 
@@ -150,8 +147,10 @@ with tab_peliculas:
     if saga:
         pelis_df = pelis_df[pelis_df["saga"] == saga]
 
+    columnas_pelis = ["id"] + [c for c in pelis_df.columns if c not in ["id", "isbn"]]
+
     st.dataframe(
-        pelis_df[["id"] + [c for c in pelis_df.columns if c not in ["id", "isbn"]]],
+        pelis_df[columnas_pelis],
         width=1200
     )
 
@@ -194,4 +193,3 @@ with tab_prestamos:
             df.loc[df["id"] == obra_id, "fecha_prestamo"] = ""
             guardar_datos(df)
             st.success("Devolución registrada correctamente")
-
